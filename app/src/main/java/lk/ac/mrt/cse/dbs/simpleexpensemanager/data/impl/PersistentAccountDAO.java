@@ -113,7 +113,7 @@ public class PersistentAccountDAO extends DatabaseHelper implements AccountDAO {
 
             if(expenseType==ExpenseType.EXPENSE){
                 if(cursor.getDouble(4)-amount < 0) throw new InsufficientBalanceException(
-                        "Account balance is not enough for do the current transaction");
+                        "Account balance is not enough for do the current transaction", cursor.getDouble(4));
                 cv.put(BALANCE_Column, cursor.getDouble(4)-amount);
             }else{
                 cv.put(BALANCE_Column, cursor.getDouble(4)+amount);
