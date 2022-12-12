@@ -30,6 +30,7 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.R;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.control.ExpenseManager;
@@ -106,6 +107,8 @@ public class ManageExpensesFragment extends Fragment implements View.OnClickList
                     try {
                         currentExpenseManager.updateAccountBalance(selectedAccount, day, month, year,
                                 ExpenseType.valueOf(type.toUpperCase()), amountStr);
+                        Toast.makeText(getContext(),"Transaction Successful :)",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(),"Added to the log",Toast.LENGTH_SHORT).show();
                     } catch (InvalidAccountException e) {
                         new AlertDialog.Builder(this.getActivity())
                                 .setTitle(this.getString(R.string.msg_account_update_unable) + selectedAccount)
@@ -128,6 +131,8 @@ public class ManageExpensesFragment extends Fragment implements View.OnClickList
                                                 dialog.cancel();
                                             }
                                         }).setIcon(android.R.drawable.ic_dialog_alert).show();
+                        Toast.makeText(getContext(),"Your selected Acc Balance is : "+ e.amount,
+                                Toast.LENGTH_LONG).show();
                     }
                 }
                 amount.getText().clear();
