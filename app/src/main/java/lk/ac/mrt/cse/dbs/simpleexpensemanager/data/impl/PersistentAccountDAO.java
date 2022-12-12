@@ -10,6 +10,7 @@ import java.util.List;
 
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.AccountDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.database.DatabaseHelper;
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.exception.InsufficientBalanceException;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.exception.InvalidAccountException;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Account;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
@@ -96,7 +97,8 @@ public class PersistentAccountDAO extends DatabaseHelper implements AccountDAO {
     }
 
     @Override
-    public void updateBalance(String accountNo, ExpenseType expenseType, double amount) throws InvalidAccountException {
+    public void updateBalance(String accountNo, ExpenseType expenseType, double amount)
+            throws InvalidAccountException, InsufficientBalanceException {
         SQLiteDatabase sqLiteDatabase = getWritableDatabase();
 
         String get_query = "SELECT * FROM " + ACCOUNTS_TABLE + " WHERE " + ACCOUNT_NO_Column + "=" + accountNo;
@@ -110,6 +112,8 @@ public class PersistentAccountDAO extends DatabaseHelper implements AccountDAO {
             cv.put(ACCOUNT_HOLDER_NAME_Column, cursor.getString(3));
 
             if(expenseType==ExpenseType.EXPENSE){
+                if(cursor.getDouble(4)-amount < 0) throw new InsufficientBalanceException(
+                        "Account balance is not enough for do the current transaction");
                 cv.put(BALANCE_Column, cursor.getDouble(4)-amount);
             }else{
                 cv.put(BALANCE_Column, cursor.getDouble(4)+amount);
