@@ -80,8 +80,8 @@ public class PersistentTransactionDAO extends DatabaseHelper implements Transact
         String get_All_query = "SELECT * FROM " + TRANSACTIONS_Table;
         Cursor cursor = sqLiteDatabase.rawQuery(get_All_query,null);
 
-        if (cursor.moveToFirst()){
-            int i = 0;
+        if (cursor.moveToLast()){
+            int i = limit;
             do{
                 SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
                 Date date = null;
@@ -99,8 +99,8 @@ public class PersistentTransactionDAO extends DatabaseHelper implements Transact
 
                 Transaction transaction = new Transaction(date, cursor.getString(2), expenseType,cursor.getDouble(4));
                 transactionArrayList.add(transaction);
-                i += 1;
-            }while(cursor.moveToNext() && i<limit);
+                i -= 1;
+            }while(cursor.moveToPrevious() && i!=0);
         }
         sqLiteDatabase.close();
         return transactionArrayList;
