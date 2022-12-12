@@ -97,17 +97,28 @@ public class PersistentAccountDAO extends DatabaseHelper implements AccountDAO {
 
     @Override
     public void updateBalance(String accountNo, ExpenseType expenseType, double amount) throws InvalidAccountException {
-        Account acc = getAccount(accountNo);
+        SQLiteDatabase sqLiteDatabase = getWritableDatabase();
+
+        String get_query = "SELECT * FROM " + ACCOUNTS_TABLE + " WHERE " + ACCOUNT_NO_Column + "=" + accountNo;
+        Cursor cursor = sqLiteDatabase.rawQuery(get_query,null);
+
         ContentValues cv = new ContentValues();
 
-        cv.put(ACCOUNT_NO_Column, acc.getAccountNo());
-        cv.put(BANK_NAME_Column, acc.getBankName());
-        cv.put(ACCOUNT_HOLDER_NAME_Column, acc.getAccountHolderName());
+        if (cursor.moveToFirst()){
+            cv.put(ACCOUNT_NO_Column, cursor.getString(1));
+            cv.put(BANK_NAME_Column, cursor.getString(2));
+            cv.put(ACCOUNT_HOLDER_NAME_Column, cursor.getString(3));
 
-        if(expenseType==ExpenseType.EXPENSE){
-            cv.put(BALANCE_Column, acc.getBalance()-amount);
-        }else{
-            cv.put(BALANCE_Column, acc.getBalance()+amount);
+            if(expenseType==ExpenseType.EXPENSE){
+                cv.put(BALANCE_Column, cursor.getDouble(4)-amount);
+            }else{
+                cv.put(BALANCE_Column, cursor.getDouble(4)+amount);
+            }
+        } else{
+            throw new InvalidAccountException("No such Account");
         }
+
+        int status = sqLiteDatabase.update(ACCOUNTS_TABLE,cv,ACCOUNT_NO_Column+"=?",new String[]{accountNo});
+        sqLiteDatabase.close();
     }
 }
